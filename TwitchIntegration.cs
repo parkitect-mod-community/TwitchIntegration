@@ -83,7 +83,7 @@ namespace TwitchIntegration
         void OnDestroy ()
         {
 			
-            //ircClient.Disconnect();
+            ircClient.Disconnect();
         }
 
         #endregion
@@ -109,8 +109,7 @@ namespace TwitchIntegration
                 return;
             }
 
-            UnityEngine.Debug.Log ("user joined channel" + e.user.name);
-
+           
             if (collection.GetGuest (e.user) != null)
                 return;
 
@@ -129,18 +128,33 @@ namespace TwitchIntegration
             if (userGuest == null) {
                 syncHandle += (object sr, EventArgs ev) => {
                     userGuest = GameController.Instance.park.spawnUnInitializedPerson (Prefabs.Guest) as Guest;
-                    userGuest.nickname = e.user.name;
+                    userGuest.name = e.user.name;
 
-                    Match match = Regex.Match (e.user.name, @"""(\w+)""(?:\s*""(\w+)"")?", RegexOptions.IgnoreCase);
-
+                    Match match = Regex.Match (e.user.name, @"(\w+)(?:\s+|\_+)(\w+)", RegexOptions.IgnoreCase);
                     if (match.Success) {
                         userGuest.forename = match.Groups [1].Value;
                         if (match.Groups [2].Success) {
                             userGuest.surname = match.Groups [2].Value;
                         }
                     }
+                    else
+                    {
+                        match = Regex.Match (e.user.name, @"([A-Z][a-z]+)([A-Z][a-z]+)", RegexOptions.IgnoreCase);
+                        if (match.Success) {
+                            userGuest.forename = match.Groups [1].Value;
+                            if (match.Groups [2].Success) {
+                                userGuest.surname = match.Groups [2].Value;
+                            }
+                        }
+                        else
+                        {
+                            userGuest.forename = e.user.name;
+                            userGuest.surname = "-";
+                        }
+                    }
 
                     userGuest.Initialize ();
+                    UnityEngine.Debug.Log ("user guest has spawned" + e.user.name);
 
                     collection.RegisterUser(e.user,userGuest);
                 };
@@ -212,7 +226,7 @@ namespace TwitchIntegration
 
             if (ms.message.Equals ("!thoughts")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
-                ;
+               
                 if (guest == null)
                     return;
                 if (guest.thoughts.Count > 0) {
@@ -220,16 +234,14 @@ namespace TwitchIntegration
                 }
             } else if (ms.message.StartsWith ("!actions")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
-                ;
                 if (guest == null)
                     return;
                 List<Experience> experiences = guest.experienceLog.getExperiences ();
                 if (experiences.Count > 0) {
                     ircClient.SendMessage (channel, "Actions of " + guest.getName () + ": " + experiences [experiences.Count - 1].getDescription ());
-                }
+                } 
             } else if (ms.message.StartsWith ("!status")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
-                ;
                 if (guest == null)
                     return;
                 ircClient.SendMessage (channel, "Status of " + guest.getName () + ": " + guest.currentBehaviour.getDescription () + ".");
