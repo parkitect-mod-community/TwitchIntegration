@@ -108,8 +108,10 @@ namespace TwitchIntegration
                         }
 
                         foreach (Guest guest in Main.instance.collection.GetGuests()) {
-                            if (GUILayout.Button (guest.getName ())) {
-                                GameController.Instance.cameraController.lockOnto (guest.gameObject);
+                            if (guest != null) {
+                                if (GUILayout.Button (guest.getName ())) {
+                                    GameController.Instance.cameraController.lockOnto (guest.gameObject);
+                                }
                             }
                         }
                     }
