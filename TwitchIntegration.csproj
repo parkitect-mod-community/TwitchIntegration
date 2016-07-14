@@ -5,132 +5,66 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E7CFD7C1-0CC7-47FB-B11B-E119432F832A}</ProjectGuid>
+    <ProjectGuid>{B35E86CF-2724-43D2-A56F-6492C83D9DF2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>TwitchIntegration</RootNamespace>
-    <AssemblyName>TwitchIntegration</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AssemblyName>Twitch</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>True</DebugSymbols>
+    <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>False</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>False</ConsolePause>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>True</Optimize>
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <ConsolePause>False</ConsolePause>
+    <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\Parkitect Builds\Release\Windows\Parkitect_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\Parkitect_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\Parkitect Builds\Release\Windows\Parkitect_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\..\Parkitect_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\..\Parkitect Builds\Release\Windows\Parkitect_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\Parkitect_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TwitchIRC\Args\OnConnectedArgs.cs" />
+    <Compile Include="TwitchIRC\Args\OnDisconnect.cs" />
+    <Compile Include="TwitchIRC\Args\OnErrorArgs.cs" />
+    <Compile Include="TwitchIRC\Args\OnRegistered.cs" />
+    <Compile Include="TwitchIRC\Args\OnUserLeftChannel.cs" />
+    <Compile Include="TwitchIRC\IrcChannel.cs" />
+    <Compile Include="TwitchIRC\TwitchCommand.cs" />
+    <Compile Include="TwitchIRC\TwitchCredentials.cs" />
+    <Compile Include="TwitchIRC\TwitchIrcClient.cs" />
+    <Compile Include="TwitchIRC\TwitchUser.cs" />
+    <Compile Include="TwitchIRC\Utility\ColorUtility.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Configruation.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="TwitchIntegration.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="IrcDotNet\CircularBufferStream.cs" />
-    <Compile Include="IrcDotNet\CollectionUtilities.cs" />
-    <Compile Include="IrcDotNet\DebugUtilities.cs" />
-    <Compile Include="IrcDotNet\IIrcFloodPreventer.cs" />
-    <Compile Include="IrcDotNet\IIrcMessageReceiveHandler.cs" />
-    <Compile Include="IrcDotNet\IIrcMessageReceiver.cs" />
-    <Compile Include="IrcDotNet\IIrcMessageSendHandler.cs" />
-    <Compile Include="IrcDotNet\IIrcMessageSource.cs" />
-    <Compile Include="IrcDotNet\IIrcMessageTarget.cs" />
-    <Compile Include="IrcDotNet\IrcChannel.cs" />
-    <Compile Include="IrcDotNet\IrcChannelCollection.cs" />
-    <Compile Include="IrcDotNet\IrcChannelInfo.cs" />
-    <Compile Include="IrcDotNet\IrcChannelUser.cs" />
-    <Compile Include="IrcDotNet\IrcChannelUserCollection.cs" />
-    <Compile Include="IrcDotNet\IrcClient.cs" />
-    <Compile Include="IrcDotNet\IrcClientMessageProcessing.cs" />
-    <Compile Include="IrcDotNet\IrcClientMessageSending.cs" />
-    <Compile Include="IrcDotNet\IrcEventArgs.cs" />
-    <Compile Include="IrcDotNet\IrcLocalUser.cs" />
-    <Compile Include="IrcDotNet\IrcNetworkInfo.cs" />
-    <Compile Include="IrcDotNet\IrcRegistrationInfo.cs" />
-    <Compile Include="IrcDotNet\IrcServer.cs" />
-    <Compile Include="IrcDotNet\IrcServerInfo.cs" />
-    <Compile Include="IrcDotNet\IrcServerStatisticalEntry.cs" />
-    <Compile Include="IrcDotNet\IrcStandardFloodPreventer.cs" />
-    <Compile Include="IrcDotNet\IrcTargetMask.cs" />
-    <Compile Include="IrcDotNet\IrcUser.cs" />
-    <Compile Include="IrcDotNet\IrcUserCollection.cs" />
-    <Compile Include="IrcDotNet\IrcUtilities.cs" />
-    <Compile Include="IrcDotNet\MessageProcessorAttribute.cs" />
-    <Compile Include="IrcDotNet\ReflectionUtilities.cs" />
-    <Compile Include="IrcDotNet\SafeLineReader.cs" />
-    <Compile Include="IrcDotNet\StandardIrcClient.cs" />
-    <Compile Include="IrcDotNet\TextUtilities.cs" />
-    <Compile Include="IrcDotNet\TwitchIrcClient.cs" />
-    <Compile Include="IrcDotNet\Collections\CollectionsUtilities.cs" />
-    <Compile Include="IrcDotNet\Collections\ReadOnlyDictionary.cs" />
-    <Compile Include="IrcDotNet\Ctcp\CtcpClient.cs" />
-    <Compile Include="IrcDotNet\Ctcp\CtcpClientMessageProcessing.cs" />
-    <Compile Include="IrcDotNet\Ctcp\CtcpClientMessageSending.cs" />
-    <Compile Include="IrcDotNet\Ctcp\CtcpEventArgs.cs" />
-    <Compile Include="IrcDotNet\Properties\Resources.Designer.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple1.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple2.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple3.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple4.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple5.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple6.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple7.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\Tuple8.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\IrcDotNetTuple.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\IIrcDotNetStructuralComparable.net35.cs" />
-    <Compile Include="IrcDotNet\Collections\IIrcDotNetStructuralEquatable.net35.cs" />
+    <Compile Include="TwitchIntegration.cs" />
+    <Compile Include="TwitchIRC\Args\UserChannelArgs.cs" />
+    <Compile Include="TwitchIRC\Args\TwitchMessage.cs" />
+    <Compile Include="TwitchIRC\Args\NoticeMessageArg.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Folder Include="IrcDotNet\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="IrcDotNet\.DS_Store" />
-    <None Include="IrcDotNet\ClassDiagram.cd" />
-    <None Include="IrcDotNet\IrcDotNet.csproj" />
-    <None Include="IrcDotNet\Collections\.DS_Store" />
-    <None Include="IrcDotNet\Properties\Resources.resources" />
-    <None Include="IrcDotNet\Properties\Resources.resx" />
-    <None Include="IrcDotNet\bin\.DS_Store" />
-    <None Include="IrcDotNet\bin\Debug\.DS_Store" />
-    <None Include="IrcDotNet\bin\Debug\Assembly-CSharp-firstpass.dll" />
-    <None Include="IrcDotNet\bin\Debug\Assembly-CSharp.dll" />
-    <None Include="IrcDotNet\bin\Debug\DOTween.dll" />
-    <None Include="IrcDotNet\bin\Debug\Fabric.Core.dll" />
-    <None Include="IrcDotNet\bin\Debug\ICSharpCode.SharpZipLib.dll" />
-    <None Include="IrcDotNet\bin\Debug\IrcDotNet.dll" />
-    <None Include="IrcDotNet\bin\Debug\IrcDotNet.dll.mdb" />
-    <None Include="IrcDotNet\bin\Debug\Mono.Security.dll" />
-    <None Include="IrcDotNet\bin\Debug\MouseLibWin.dll" />
-    <None Include="IrcDotNet\bin\Debug\ProMouseDll.dll" />
-    <None Include="IrcDotNet\bin\Debug\System.Core.dll" />
-    <None Include="IrcDotNet\bin\Debug\System.Xml.dll" />
-    <None Include="IrcDotNet\bin\Debug\System.dll" />
-    <None Include="IrcDotNet\bin\Debug\UnityEngine.CrashLog.dll" />
-    <None Include="IrcDotNet\bin\Debug\UnityEngine.UI.dll" />
-    <None Include="IrcDotNet\bin\Debug\UnityEngine.dll" />
-    <None Include="IrcDotNet\bin\Debug\mscorlib.dll" />
-    <None Include="IrcDotNet\bin\Debug\protobuf-net.dll" />
+    <Folder Include="TwitchIRC\" />
   </ItemGroup>
 </Project>

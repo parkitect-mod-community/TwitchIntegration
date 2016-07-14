@@ -4,37 +4,52 @@ using UnityEngine;
 
 namespace TwitchIntegration {
 	public class Main : IMod, IModSettings {
-		private TwitchIntegration __instance;
+        public static TwitchIntegration instance;
+        public static Configruation configuration;
 
 		public void onEnabled() {
-			GameObject go = new GameObject(Name);
-			__instance = go.AddComponent<TwitchIntegration>();
+            if (Main.configuration == null) {
+                Main.configuration = new Configruation (this.Path);
+                Main.configuration.Load ();
+            }
+			
+            GameObject go = new GameObject(Name);
+			instance = go.AddComponent<TwitchIntegration>();
 		}
 		
 		public void onDisabled() {
-			if (__instance != null) {
-				UnityEngine.Object.Destroy(__instance.gameObject);
-				__instance = null;
+			if (instance != null) {
+				UnityEngine.Object.Destroy(instance.gameObject);
+				instance = null;
 			}
 		}
 
 		public void onDrawSettingsUI() {
-			__instance.renderSettingsUI();
+            Main.configuration.DrawGUI ();
 		}
 
-		public void onSettingsOpened() { }
-		public void onSettingsClosed() { }
+		public void onSettingsOpened() {
+            if (Main.configuration == null)
+                Main.configuration = new Configruation (this.Path);
+            Main.configuration.Load ();
+            
+        }
+		public void onSettingsClosed() {
+            Main.configuration.Save ();
+        }
 		
 		public string Name {
 			get { return "Twitch Integration"; }
 		}
 
 		public string Identifier {
-			get { return "com.themeparkitect.TwitchIntegration"; }
+            get; set;
 		}
 
 		public string Description {
 			get { return "Allows viewers of your Twitch livestream to interact with the game."; }
 		}
+
+        public string Path{get;set;}
 	}
 }
