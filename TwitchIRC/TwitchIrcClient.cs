@@ -48,7 +48,15 @@ namespace TwitchIntegration
         public event EventHandler<UserChannelArgs> OnLeaveChannel;
 
 
-        public bool IsConnected{ get; private set; }
+        public bool IsConnected{ 
+            get 
+            {
+                if (tcp == null)
+                    return false;
+                return tcp.Connected;
+            
+            }
+        }
 
 
         public TwitchIrcClient ()
@@ -59,6 +67,7 @@ namespace TwitchIntegration
 
         public void Connect (bool useSSL, string name, string token)
         {
+            stopThreads = false;
             tcp = new TcpClient ();
             localUser = new TwitchUser (name, token);
 
@@ -101,10 +110,8 @@ namespace TwitchIntegration
 
                 if (messageCount < 100 && isMod || messageCount < 20) {
 
-                    bool isEmpty = false;
                     sendingMutex.WaitOne ();
                     if (commandQueue.Count > 0) {
-                        isEmpty = commandQueue.Count == 0;
 
                         UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
                         writer.WriteLine (commandQueue.Peek ());
@@ -136,11 +143,9 @@ namespace TwitchIntegration
         {
             while (!stopThreads) {
                 string line = reader.ReadLine ();
-                string payload = line.Split (':') [line.Split (':').Length - 1];
-
                 string[] del = line.Split (' ');
 
-              
+                UnityEngine.Debug.Log (line);
 
                 List<KeyValuePair<string,string>> arguments = new List<KeyValuePair<string, string>> ();
 
@@ -168,12 +173,13 @@ namespace TwitchIntegration
                 case "PRIVMSG":
                     {
                         index++;
-                        string channel = del [index].Substring (1);
+                        string channel = del [index];
+                        string payload = line.Substring (line.IndexOf (':', line.IndexOf (channel) + channel.Length) + 1);   
                         if (OnMessage != null)
                             OnMessage (this, new TwitchMessage (line, arguments, new IrcChannel (channel), user, payload));
                     }
                     break;
-                case "JOIN":
+                 case "JOIN":
                     {
                         index++;
                         string channel = del [index].Substring (1);
@@ -229,6 +235,8 @@ namespace TwitchIntegration
                     index++;
                     index++;
                     if (del [index] == "ACK") {
+                        index++;
+                        string payload = del [index].Substring (1);
                         switch (payload) {
                             case "twitch.tv/commands":
                                 break;
@@ -238,6 +246,10 @@ namespace TwitchIntegration
                 case "372":
                     if (Connected != null)
                         Connected.Invoke (this, new OnConnectedArgs ());
+                    break;
+                case "421":
+                    UnityEngine.Debug.Log (line);
+
                     break;
 
                 }
@@ -249,6 +261,14 @@ namespace TwitchIntegration
                 }
             }
             UnityEngine.Debug.Log ("closing sending thread");
+        }
+
+        public void Disconnect()
+        {
+            stopThreads = true;
+            sendingHandle.Set ();
+            tcp.Close ();
+
         }
 
         public void SendCommand (string command)
@@ -269,7 +289,7 @@ namespace TwitchIntegration
 
         public void SendMessagePrivate (IrcChannel channel,TwitchUser user, string message)
         {
-            SendCommand ("PRIVMSG #" + channel.channel + " :/w " + user.name + " " + message);
+            SendCommand ("PRIVMSG #" + channel.channel + " :/w" +" "+user.name+" " + message);
 
         }
 

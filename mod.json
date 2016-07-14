@@ -4,5 +4,5 @@
     "IsDevelopment": true,
     "Name": "Twitch Integration",
     "Project": "TwitchIntegration.csproj",
-    "CompilerVersion":"v2.0"
+    "CompilerVersion":"v3.5"
 }

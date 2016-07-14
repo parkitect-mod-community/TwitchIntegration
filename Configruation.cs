@@ -11,10 +11,8 @@ namespace TwitchIntegration
         private Rect uiRect = new Rect(4, 30, 300, 300);
         private Vector2 scrollPosition;
 
-        private const string twitchClientID = "ogtnoqm4m86chl2oflq5myfznk8u5oq";
-        private const string twitchRedirectUri = "http://www.themeparkitect.com/twitch_auth.html";
-        private const string twitchIrcServer = "irc.twitch.tv";
-        private const int twitchIrcPort = 6667;
+        public const string twitchClientID = "ogtnoqm4m86chl2oflq5myfznk8u5oq";
+        public const string twitchRedirectUri = "http://www.themeparkitect.com/twitch_auth.html";
 
         private enum Page {
             STATUS, SETTINGS
@@ -103,22 +101,17 @@ namespace TwitchIntegration
                 }
                 else {
                     if (Main.instance != null) {
-                        //if (!ircClient.IsConnected && GUILayout.Button ("Connect")) {
-                            //IrcUserRegistrationInfo botUser = new IrcUserRegistrationInfo();
-                            //botUser.NickName = settings.twitchUsername.ToLower();
-                            //botUser.UserName = botUser.NickName;
-                            //botUser.Password = "oauth:" + settings.twitchOAuthToken;
+                       if (!Main.instance.ircClient.IsConnected && GUILayout.Button ("Connect")) {
+                            Main.instance.ircClient.Connect (false, Main.configuration.settings.twitchUsername, Main.configuration.settings.twitchOAuthToken);
+                        } else if (Main.instance.ircClient.IsConnected && GUILayout.Button ("Disconnect")) {
+                            Main.instance.ircClient.Disconnect();
+                        }
 
-                            //ircClient.Connect(twitchIrcServer, twitchIrcPort, false, botUser);
-                        //} else if (ircClient.IsConnected && GUILayout.Button ("Disconnect")) {
-                            //ircClient.Disconnect();
-                        //}
-
-                       // foreach (Guest guest in twitchUserGuestAssoc.Values) {
-                         //   if (GUILayout.Button (guest.getName ())) {
-                         //       GameController.Instance.cameraController.lockOnto (guest.gameObject);
-                          //  }
-                       // }
+                        foreach (Guest guest in Main.instance.collection.GetGuests()) {
+                            if (GUILayout.Button (guest.getName ())) {
+                                GameController.Instance.cameraController.lockOnto (guest.gameObject);
+                            }
+                        }
                     }
 
                    // GUILayout.Label(ircLogString);
