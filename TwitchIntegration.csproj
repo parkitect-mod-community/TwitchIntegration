@@ -63,6 +63,7 @@
     <Compile Include="TwitchIRC\Args\TwitchMessage.cs" />
     <Compile Include="TwitchIRC\Args\NoticeMessageArg.cs" />
     <Compile Include="TwitchGuestAssocCollection.cs" />
+    <Compile Include="TwitchIRC\TwitchIrcGlobal.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

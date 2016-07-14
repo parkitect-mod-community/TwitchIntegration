@@ -10,7 +10,6 @@ using MiniJSON;
 using System.Text.RegularExpressions;
 using TwitchIntegration;
 using System.Threading;
-using System.Linq;
 
 namespace TwitchIntegration
 {
@@ -190,28 +189,38 @@ namespace TwitchIntegration
         {
             TwitchMessage ms = e;
 
-            if (!isPermitted (ms.twitchUser, Main.configuration.settings.authPostAlerts)) {
-                ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
-
-                return;
-            }
- 
 
             UnityEngine.Debug.Log (ms.message);
             //addIrcLogEntry(e.displayName + ": " + e.message);
             if (ms.message.StartsWith ("!alert")) {
+                if (!isPermitted (ms.twitchUser, Main.configuration.settings.authPostAlerts)) {
+                    ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
+
+                    return;
+                }
+
                 syncHandle += (object sr, EventArgs ev) => {
                     NotificationBar.Instance.addNotification (ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1));
                 };
-            } else if (ms.message.Equals ("!thoughts")) {
-                Guest guest = collection.GetGuest (ms.twitchUser);;
+            } 
+
+            if (!isPermitted (ms.twitchUser, Main.configuration.settings.authSpawnGuests)) {
+                ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
+
+                return;
+            }
+
+            if (ms.message.Equals ("!thoughts")) {
+                Guest guest = collection.GetGuest (ms.twitchUser);
+                ;
                 if (guest == null)
                     return;
                 if (guest.thoughts.Count > 0) {
                     ircClient.SendMessage (channel, "Thoughts of " + guest.getName () + ": " + guest.thoughts [guest.thoughts.Count - 1].text);
                 }
             } else if (ms.message.StartsWith ("!actions")) {
-                Guest guest = collection.GetGuest (ms.twitchUser);;
+                Guest guest = collection.GetGuest (ms.twitchUser);
+                ;
                 if (guest == null)
                     return;
                 List<Experience> experiences = guest.experienceLog.getExperiences ();
@@ -219,11 +228,15 @@ namespace TwitchIntegration
                     ircClient.SendMessage (channel, "Actions of " + guest.getName () + ": " + experiences [experiences.Count - 1].getDescription ());
                 }
             } else if (ms.message.StartsWith ("!status")) {
-                Guest guest = collection.GetGuest (ms.twitchUser);;
+                Guest guest = collection.GetGuest (ms.twitchUser);
+                ;
                 if (guest == null)
                     return;
-                 ircClient.SendMessage (channel, "Status of " + guest.getName () + ": " + guest.currentBehaviour.getDescription () + ".");
-            } else if (ms.message.StartsWith ("!inventory")) {
+                ircClient.SendMessage (channel, "Status of " + guest.getName () + ": " + guest.currentBehaviour.getDescription () + ".");
+            } else if (ms.message.StartsWith ("!spawn")) {
+                onIrcJoined(sender,new UserChannelArgs(e.twitchUser,e.channel));
+            }
+            else if (ms.message.StartsWith ("!inventory")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);;
                 if (guest == null)
                     return;

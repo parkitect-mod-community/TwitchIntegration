@@ -283,13 +283,15 @@ namespace TwitchIntegration
 
         public void SendMessage (IrcChannel channel, string message)
         {
-            SendCommand ("PRIVMSG #" + channel.channel + " :" + message);
+            if(!TwitchIrcGlobal.blockMessages)
+                SendCommand ("PRIVMSG #" + channel.channel + " :" + message);
             
         }
 
         public void SendMessagePrivate (IrcChannel channel,TwitchUser user, string message)
         {
-            SendCommand ("PRIVMSG #" + channel.channel + " :/w" +" "+user.name+" " + message);
+            if(!TwitchIrcGlobal.blockMessages)
+                SendCommand ("PRIVMSG #" + channel.channel + " :/w" +" "+user.name+" " + message);
 
         }
 
