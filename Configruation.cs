@@ -29,8 +29,15 @@ namespace TwitchIntegration
             UnityEngine.Debug.Log(this.path);
         }
 
+        private void SetGlobalSettings()
+        {
+            Global.PERSON_SPAWN = settings.defaultGuestSpawning;
+
+        }
+
         public void Save()
         {
+            SetGlobalSettings ();
             SerializationContext context = new SerializationContext(SerializationContext.Context.Savegame);
 
             using (var stream = new FileStream(this.path, FileMode.Create))
@@ -64,6 +71,7 @@ namespace TwitchIntegration
                 
                 UnityEngine.Debug.Log("Couldn't properly load settings file! " + e.ToString());
             }
+            SetGlobalSettings ();
 
         }
 
@@ -127,6 +135,27 @@ namespace TwitchIntegration
                 GUILayout.Label("!spawn: Spawning a guest");
                 drawAuthToggleGroup(ref settings.authSpawnGuests);
                 GUILayout.Space(20);
+
+                GUILayout.Label("Notification when a guest is spawned");
+                drawAuthToggleGroup(ref settings.authSpawnGuests);
+                GUILayout.Space(20);
+
+                GUILayout.Label("Twitch feed and guest thoughts");
+                drawAuthToggleGroup(ref settings.authTwitchFeedGuestThoughts);
+                GUILayout.Space(20);
+
+
+                //TODO:needs to be implemented
+                //settings.subscriptionNotification = GUILayout.Toggle (settings.subscriptionNotification, "Subscription notification");
+                //GUILayout.Space(20);
+
+                settings.twitchSpawnGuestNotification = GUILayout.Toggle (settings.twitchSpawnGuestNotification, "Twitch guest spawning notification");
+                GUILayout.Space(20);
+
+
+                settings.defaultGuestSpawning = GUILayout.Toggle (settings.defaultGuestSpawning, "Default guest spawning");
+                GUILayout.Space(20);
+
 
                 GUILayout.Label("Twitch user name");
                 settings.twitchUsername = GUILayout.TextField(settings.twitchUsername);

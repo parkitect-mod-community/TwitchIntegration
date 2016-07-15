@@ -113,7 +113,7 @@ namespace TwitchIntegration
                     sendingMutex.WaitOne ();
                     if (commandQueue.Count > 0) {
 
-                        UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
+                       // UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
                         writer.WriteLine (commandQueue.Peek ());
                         writer.Flush ();
 
@@ -145,7 +145,7 @@ namespace TwitchIntegration
                 string line = reader.ReadLine ();
                 string[] del = line.Split (' ');
 
-                UnityEngine.Debug.Log (line);
+                //UnityEngine.Debug.Log (line);
 
                 List<KeyValuePair<string,string>> arguments = new List<KeyValuePair<string, string>> ();
 

@@ -61,7 +61,7 @@ namespace TwitchIntegration
             //ircClient.NoticeMessage += onIrcErrorMessageReceived;
 
             ircClient.OnMessage += onIrcChannelMessageReceived;
-            ircClient.Connect (false, Main.configuration.settings.twitchUsername, Main.configuration.settings.twitchOAuthToken);
+            ircClient.Connect (true, Main.configuration.settings.twitchUsername, Main.configuration.settings.twitchOAuthToken);
         }
 
 		
@@ -128,7 +128,7 @@ namespace TwitchIntegration
             if (userGuest == null) {
                 syncHandle += (object sr, EventArgs ev) => {
                     userGuest = GameController.Instance.park.spawnUnInitializedPerson (Prefabs.Guest) as Guest;
-                    userGuest.name = e.user.name;
+                    userGuest.nickname = e.user.name;
 
                     Match match = Regex.Match (e.user.name, @"(\w+)(?:\s+|\_+)(\w+)", RegexOptions.IgnoreCase);
                     if (match.Success) {
@@ -154,7 +154,11 @@ namespace TwitchIntegration
                     }
 
                     userGuest.Initialize ();
-                    UnityEngine.Debug.Log ("user guest has spawned" + e.user.name);
+
+                    if (Main.configuration.settings.twitchSpawnGuestNotification) {
+                        NotificationBar.Instance.addNotification (e.user.name + " has spawned in as a guest",userGuest.transform.position,null);
+                    }
+
 
                     collection.RegisterUser(e.user,userGuest);
                 };
@@ -208,8 +212,8 @@ namespace TwitchIntegration
             //addIrcLogEntry(e.displayName + ": " + e.message);
             if (ms.message.StartsWith ("!alert")) {
                 if (!isPermitted (ms.twitchUser, Main.configuration.settings.authPostAlerts)) {
-                    ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
-
+                    if(Main.configuration.settings.authPostAlerts == Settings.AuthorizationLevel.SUBSCRIBERS)
+                        ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
                     return;
                 }
                 syncHandle += (object sr, EventArgs ev) => {
@@ -217,11 +221,7 @@ namespace TwitchIntegration
                 };
             } 
 
-            if (!isPermitted (ms.twitchUser, Main.configuration.settings.authSpawnGuests)) {
-                ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
-
-                return;
-            }
+        
 
             if (ms.message.Equals ("!thoughts")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
@@ -257,6 +257,11 @@ namespace TwitchIntegration
                 }
                 ircClient.SendMessage (channel, "Inventory of " + guest.getName () + ": " + string.Join (", ", inventoryItems.ToArray ()));
             } else {
+
+                if (!isPermitted (ms.twitchUser, Main.configuration.settings.authTwitchFeedGuestThoughts)) {
+                    return;
+                }
+
                 syncHandle += (object sr, EventArgs ev) => {
                     Guest guest = collection.GetGuest (ms.twitchUser);
                     if (guest == null)

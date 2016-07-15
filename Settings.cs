@@ -10,6 +10,19 @@ namespace TwitchIntegration {
 		[Serialized]
 		public AuthorizationLevel authSpawnGuests = AuthorizationLevel.SUBSCRIBERS;
 
+        [Serialized]
+        public AuthorizationLevel authTwitchFeedGuestThoughts = AuthorizationLevel.SUBSCRIBERS;
+
+        [Serialized]
+        public bool twitchSpawnGuestNotification = false;
+
+        [Serialized]
+        public bool subscriptionNotification = false;
+
+        [Serialized]
+        public bool defaultGuestSpawning = false;
+
+
 		[Serialized]
 		public string twitchOAuthToken = "";
 		[Serialized]
