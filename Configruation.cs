@@ -146,8 +146,8 @@ namespace TwitchIntegration
 
 
                 //TODO:needs to be implemented
-                //settings.subscriptionNotification = GUILayout.Toggle (settings.subscriptionNotification, "Subscription notification");
-                //GUILayout.Space(20);
+                settings.subscriptionNotification = GUILayout.Toggle (settings.subscriptionNotification, "Subscription notification");
+                GUILayout.Space(20);
 
                 settings.twitchSpawnGuestNotification = GUILayout.Toggle (settings.twitchSpawnGuestNotification, "Twitch guest spawning notification");
                 GUILayout.Space(20);

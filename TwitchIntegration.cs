@@ -55,6 +55,7 @@ namespace TwitchIntegration
             ircClient.Connected += onIrcConnected;
             ircClient.OnJoinChannel += onIrcJoined;
             ircClient.OnLeaveChannel += OnLeavelRoom;
+            ircClient.OnSubscribe += IrcClient_OnSubscribe;
             //ircClient.Disconnected += onIrcDisconnected;
             //ircClient.Registered += onIrcRegistered;
             //ircClient.Error += onIrcError;
@@ -63,6 +64,8 @@ namespace TwitchIntegration
             ircClient.OnMessage += onIrcChannelMessageReceived;
             ircClient.Connect (true, Main.configuration.settings.twitchUsername, Main.configuration.settings.twitchOAuthToken);
         }
+
+ 
 
 		
         void Update ()
@@ -101,6 +104,18 @@ namespace TwitchIntegration
 
             ircClient.SendMessage (channel, "Hi, I'm the Parkitect Twitch Integration!");
             UnityEngine.Debug.Log ("joined channel");
+
+           
+        }
+
+        private void IrcClient_OnSubscribe (object sender, SubscribeArgs e)
+        {
+            if (Main.configuration.settings.subscriptionNotification) {
+                syncHandle += (object sr, EventArgs ev) => {
+                    NotificationBar.Instance.addNotification (e.displayName + " has subbed for  " + e.numberOfMonths + " months in a row: " + e.message,default(Vector3),null);
+                
+                };
+            }
         }
 
         private void onIrcJoined (object sender, UserChannelArgs e)
@@ -219,10 +234,8 @@ namespace TwitchIntegration
                 syncHandle += (object sr, EventArgs ev) => {
                     NotificationBar.Instance.addNotification (ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1),default(Vector3),null);
                 };
+
             } 
-
-        
-
             if (ms.message.Equals ("!thoughts")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
                

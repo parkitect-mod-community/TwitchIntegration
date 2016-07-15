@@ -6,6 +6,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Text;
 
 namespace TwitchIntegration
 {
@@ -17,11 +18,11 @@ namespace TwitchIntegration
         private const int TWITCH_PORT = 6667;
         private bool isMod = false;
 
+
         private Stopwatch stopWatch = new Stopwatch ();
-        private Mutex sendingMutex = new Mutex ();
+        private Mutex commandQueueMutex = new Mutex ();
         private EventWaitHandle sendingHandle = new AutoResetEvent (false);
         private int messageCount = 0;
-
 
         private bool stopThreads = false;
         private Queue<String> commandQueue = new Queue<string> ();
@@ -44,13 +45,13 @@ namespace TwitchIntegration
         public event EventHandler<OnConnectedArgs> Connected;
         public event EventHandler<NoticeMessageArg> NoticeMessage;
         public event EventHandler<TwitchMessage> OnMessage;
+        public event EventHandler<SubscribeArgs> OnSubscribe;
         public event EventHandler<UserChannelArgs> OnJoinChannel;
         public event EventHandler<UserChannelArgs> OnLeaveChannel;
 
 
-        public bool IsConnected{ 
-            get 
-            {
+        public bool IsConnected { 
+            get {
                 if (tcp == null)
                     return false;
                 return tcp.Connected;
@@ -109,22 +110,22 @@ namespace TwitchIntegration
                 }
 
                 if (messageCount < 100 && isMod || messageCount < 20) {
+                    //wait a second to send the next message
+                    Thread.Sleep (1000);
 
-                    sendingMutex.WaitOne ();
+                    commandQueueMutex.WaitOne ();
                     if (commandQueue.Count > 0) {
 
-                       // UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
+                        // UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
                         writer.WriteLine (commandQueue.Peek ());
                         writer.Flush ();
 
                         commandQueue.Dequeue ();
-                        sendingMutex.ReleaseMutex ();
+                        commandQueueMutex.ReleaseMutex ();
                     } else {
-                        sendingMutex.ReleaseMutex ();
+                        commandQueueMutex.ReleaseMutex ();
                         sendingHandle.WaitOne ();
                     }
-
-
 
                     messageCount++;
 
@@ -134,6 +135,11 @@ namespace TwitchIntegration
                         Thread.Sleep ((int)diff);
                         //sleep until the limit is reached and then try to send
                     }
+                    //temporary solution is to empty the queue
+                    commandQueueMutex.WaitOne ();
+                    commandQueue.Clear ();
+                    commandQueueMutex.ReleaseMutex ();
+
                 }
             }
                
@@ -142,128 +148,153 @@ namespace TwitchIntegration
         private void ReceivingThreadProcess ()
         {
             while (!stopThreads) {
-                string line = reader.ReadLine ();
-                string[] del = line.Split (' ');
+                try {
+                    string line = reader.ReadLine ();
+                    string[] del = line.Split (' ');
 
-                //UnityEngine.Debug.Log (line);
+                    //UnityEngine.Debug.Log (line);
 
-                List<KeyValuePair<string,string>> arguments = new List<KeyValuePair<string, string>> ();
+                    List<KeyValuePair<string,string>> arguments = new List<KeyValuePair<string, string>> ();
 
-                int index = 0;
-                //has arguments
-                if (del [index].StartsWith ("@")) {
-                    string[] keyPairs = del [index].Substring (1).Split (';');
-                    for (int x = 0; x < keyPairs.Length; x++) {
-                        string[] temp = keyPairs [x].Split ('=');
-                        arguments.Add (new KeyValuePair<string, string> (temp [0], temp [1]));
-                    }
-                    index++;
-                }
-
-                TwitchUser user = null; 
-                if (del [index].Contains ("!")) {
-                    user = new TwitchUser (del [index].Split ('!') [0].Substring (1));
-                    index++;
-                } else if (del [index].StartsWith (":")) {
-                    index++;
-                }
-
-                //protocol
-                switch (del [index]) {
-                case "PRIVMSG":
-                    {
-                        index++;
-                        string channel = del [index];
-                        string payload = line.Substring (line.IndexOf (':', line.IndexOf (channel) + channel.Length) + 1);   
-                        if (OnMessage != null)
-                            OnMessage (this, new TwitchMessage (line, arguments, new IrcChannel (channel), user, payload));
-                    }
-                    break;
-                 case "JOIN":
-                    {
-                        index++;
-                        string channel = del [index].Substring (1);
-                        if (OnJoinChannel != null)
-                            OnJoinChannel (this, new UserChannelArgs (user, new IrcChannel (channel)));
-                    }
-                    break;
-                case "PART":
-                    {
-                        index++;
-                        string channel = del [index].Substring (1);
-                        if (OnLeaveChannel != null)
-                            OnLeaveChannel (this, new UserChannelArgs (user, new IrcChannel (channel)));
-                    }
-                    break;
-                case "MODE":
-                    {
-                        //TODO: track channels bot is subscibed to
-                        index++;
-                        string channel = del [index].Substring (1);
-                        index++;
-                        string op = del [index];
-                        index++;
-                        TwitchUser localUser = new TwitchUser(del [index]);
-                        UnityEngine.Debug.Log ("you are a mod! your rate limit is now 100");
-                        if (localUser.Equals(this.localUser) && op == "+o") {
-                            isMod = true;
-                        } else if (localUser.Equals(this.localUser) && op == "-o") {
-                            isMod = false;
+                    int index = 0;
+                    //has arguments
+                    if (del [index].StartsWith ("@")) {
+                        string[] keyPairs = del [index].Substring (1).Split (';');
+                        for (int x = 0; x < keyPairs.Length; x++) {
+                            string[] temp = keyPairs [x].Split ('=');
+                            arguments.Add (new KeyValuePair<string, string> (temp [0], temp [1]));
                         }
-                    }
-                    break;
-                case "NOTICE":
-                    {
-                    index++;
-                    string channel = del [index].Substring (1);
-                    if (NoticeMessage != null)
-                            NoticeMessage (this,new NoticeMessageArg(arguments,new IrcChannel(channel)));
-                }
-                    break;
-                case "ROOMSTATE":
-                    //TODO: needs to be implemented
-                    break;
-                case "USERSTATE":
-                    //TODO: needs to be implemented
-                    break;
-                case "USERNOTICE":
-                    //TODO: needs to be implemented
-                    break;
-
-                case "CAP":
-                    //TODO: CAP case
-                    index++;
-                    index++;
-                    if (del [index] == "ACK") {
                         index++;
-                        string payload = del [index].Substring (1);
-                        switch (payload) {
-                            case "twitch.tv/commands":
-                                break;
-                        }
                     }
-                    break;
-                case "372":
-                    if (Connected != null)
-                        Connected.Invoke (this, new OnConnectedArgs ());
-                    break;
-                case "421":
-                    UnityEngine.Debug.Log (line);
 
-                    break;
+                    TwitchUser user = null; 
+                    if (del [index].Contains ("!")) {
+                        user = new TwitchUser (del [index].Split ('!') [0].Substring (1));
+                        index++;
+                    } else if (del [index].StartsWith (":")) {
+                        index++;
+                    }
 
-                }
+                    //protocol
+                    switch (del [index]) {
+                    case "PRIVMSG":
+                        {
+                            index++;
+                            string channel = del [index];
+                            index++;
+                            string payload = GetMessage (index, del);
+                            if (OnMessage != null)
+                                OnMessage (this, new TwitchMessage (line, arguments, new IrcChannel (channel), user, payload));
+                        }
+                        break;
+                    case "JOIN":
+                        {
+                            index++;
+                            string channel = del [index];
+                            if (OnJoinChannel != null)
+                                OnJoinChannel (this, new UserChannelArgs (user, new IrcChannel (channel)));
+                        }
+                        break;
+                    case "PART":
+                        {
+                            index++;
+                            string channel = del [index];
+                            if (OnLeaveChannel != null)
+                                OnLeaveChannel (this, new UserChannelArgs (user, new IrcChannel (channel)));
+                        }
+                        break;
+                    case "MODE":
+                        {
+                            //TODO: track channels bot is subscibed to
+                            index++;
+                            string channel = del [index];
+                            index++;
+                            string op = del [index];
+                            index++;
+                            TwitchUser localUser = new TwitchUser (del [index]);
+                            UnityEngine.Debug.Log ("you are a mod! your rate limit is now 100");
+                            if (localUser.Equals (this.localUser) && op == "+o") {
+                                isMod = true;
+                            } else if (localUser.Equals (this.localUser) && op == "-o") {
+                                isMod = false;
+                            }
+                        }
+                        break;
+                    case "NOTICE":
+                        {
+                            index++;
+                            string channel = del [index].Substring (1);
+                            if (NoticeMessage != null)
+                                NoticeMessage (this, new NoticeMessageArg (arguments, new IrcChannel (channel)));
+                        }
+                        break;
+                    case "ROOMSTATE":
+                    //TODO: needs to be implemented
+                        break;
+                    case "USERSTATE":
+                    //TODO: add user state
+                      break;
+                    case "USERNOTICE":
+                        {
+                            index++;
+                            string channel = del [index];
+                            index++;
+                            string payload = GetMessage (index, del);
+                            if (OnSubscribe != null)
+                                OnSubscribe (this, new SubscribeArgs (line, arguments, new IrcChannel (channel), payload));
+                        }
+                        break;
 
+                    case "CAP":
+                        {
+                            //TODO: CAP case
+                            index++;
+                            index++;
+                            if (del [index] == "ACK") {
+                                index++;
+                                string payload = del [index].Substring (1);
+                                switch (payload) {
+                                case "twitch.tv/commands":
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case "372":
+                        if (Connected != null)
+                            Connected.Invoke (this, new OnConnectedArgs ());
+                        break;
+                    case "421":
+                        UnityEngine.Debug.Log (line);
+                        break;
 
+                    }
 
-                if (line.StartsWith ("PING ")) {
-                    SendCommand (line.Replace ("PING", "PONG"));
+                    if (line.StartsWith ("PING ")) {
+                        SendCommand (line.Replace ("PING", "PONG"));
+                    }
+                } catch (Exception e) {
+                    UnityEngine.Debug.Log (e.Message);
                 }
             }
             UnityEngine.Debug.Log ("closing sending thread");
         }
 
-        public void Disconnect()
+        private string GetMessage (int index, string[] del)
+        {
+            //skip because an empty string will block the thread
+            if (index > del.Length - 1)
+                return "";
+            StringBuilder stringBuilder = new StringBuilder ();
+            for (int x = index; x < del.Length; x++) {
+                stringBuilder.Append (" ");
+                stringBuilder.Append (del [x]);
+            }
+
+            return stringBuilder.ToString ().Trim ().Substring (1);
+        }
+
+        public void Disconnect ()
         {
             stopThreads = true;
             sendingHandle.Set ();
@@ -273,9 +304,9 @@ namespace TwitchIntegration
 
         public void SendCommand (string command)
         {
-            sendingMutex.WaitOne ();
+            commandQueueMutex.WaitOne ();
             commandQueue.Enqueue (command);
-            sendingMutex.ReleaseMutex ();
+            commandQueueMutex.ReleaseMutex ();
             sendingHandle.Set ();
             
         }
@@ -283,15 +314,15 @@ namespace TwitchIntegration
 
         public void SendMessage (IrcChannel channel, string message)
         {
-            if(!TwitchIrcGlobal.blockMessages)
+            if (!TwitchIrcGlobal.blockMessages)
                 SendCommand ("PRIVMSG #" + channel.channel + " :" + message);
             
         }
 
-        public void SendMessagePrivate (IrcChannel channel,TwitchUser user, string message)
+        public void SendMessagePrivate (IrcChannel channel, TwitchUser user, string message)
         {
-            if(!TwitchIrcGlobal.blockMessages)
-                SendCommand ("PRIVMSG #" + channel.channel + " :/w" +" "+user.name+" " + message);
+            if (!TwitchIrcGlobal.blockMessages)
+                SendCommand ("PRIVMSG #" + channel.channel + " :/w" + " " + user.name + " " + message);
 
         }
 
