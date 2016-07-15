@@ -105,7 +105,7 @@ namespace TwitchIntegration
 
         private void onIrcJoined (object sender, UserChannelArgs e)
         {
-            if (!isPermitted (e.user, Main.configuration.settings.authPostAlerts)) {
+            if (!isPermitted (e.user, Main.configuration.settings.authSpawnGuests)) {
                 return;
             }
 
