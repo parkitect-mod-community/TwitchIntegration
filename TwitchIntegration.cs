@@ -212,9 +212,8 @@ namespace TwitchIntegration
 
                     return;
                 }
-
                 syncHandle += (object sr, EventArgs ev) => {
-                    NotificationBar.Instance.addNotification (ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1));
+                    NotificationBar.Instance.addNotification (ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1),default(Vector3),null);
                 };
             } 
 
@@ -259,7 +258,7 @@ namespace TwitchIntegration
                 ircClient.SendMessage (channel, "Inventory of " + guest.getName () + ": " + string.Join (", ", inventoryItems.ToArray ()));
             } else {
                 syncHandle += (object sr, EventArgs ev) => {
-                    Guest guest = collection.GetGuest (ms.twitchUser);;
+                    Guest guest = collection.GetGuest (ms.twitchUser);
                     if (guest == null)
                         return;
                     guest.think (new Thought (ms.message, Thought.Emotion.NEUTRAL, null));
