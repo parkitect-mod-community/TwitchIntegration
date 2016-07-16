@@ -13,6 +13,7 @@ namespace TwitchIntegration
        
         public float GetTimeOfMessage()
         {
+            UnityEngine.Debug.Log (Time.time - timeStamp);
             return Time.time - timeStamp;
         }
 
@@ -36,9 +37,9 @@ namespace TwitchIntegration
         {
             if (x.priority == -1 && y.priority == -1) {
                 if (x.timeStamp > y.timeStamp)
-                    return -1;
-                else
                     return 1;
+                else
+                    return -1;
             }
 
             if (x.priority > y.priority || x.priority == -1)
@@ -47,9 +48,9 @@ namespace TwitchIntegration
                 return 1;
             else if (x.priority == y.priority) {
                 if (x.timeStamp > y.timeStamp)
-                    return -1;
-                else
                     return 1;
+                else
+                    return -1;
             }
             return 0;
         }

@@ -14,13 +14,13 @@ namespace TwitchIntegration {
         public AuthorizationLevel authTwitchFeedGuestThoughts = AuthorizationLevel.SUBSCRIBERS;
 
         [Serialized]
-        public bool twitchSpawnGuestNotification = false;
+        public bool twitchSpawnGuestNotification = true;
 
         [Serialized]
-        public bool subscriptionNotification = false;
+        public bool subscriptionNotification = true;
 
         [Serialized]
-        public bool defaultGuestSpawning = false;
+        public bool defaultGuestSpawning = true;
 
 
 		[Serialized]

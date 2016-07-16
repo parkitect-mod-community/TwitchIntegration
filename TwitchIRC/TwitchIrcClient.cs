@@ -139,19 +139,24 @@ namespace TwitchIntegration
                     }
 
 
-                    int messageLimitPerCycle = (int)Mathf.Floor (messageLimit / TIME_LIMIT);
+                    int messageLimitPerCycle = Mathf.FloorToInt (messageLimit / TIME_LIMIT);
+                    if(messageLimitPerCycle == 0)
+                        messageLimitPerCycle = 1;
                     while (messageCount < messageLimit && messageLimitPerCycle > 0) {
 
                         MessageQueueMutex.WaitOne ();
                         if (messageQueue.Count > 0) {
-                        
-                            if (messageQueue.Keys [messageQueue.Count - 1].isTimeExausted ()) {
-                                messageQueue.RemoveAt (messageQueue.Count - 1);
+
+                            if (messageQueue.Keys [0].isTimeExausted ()) {
+
+                                UnityEngine.Debug.Log("dropped message:" + messageQueue.Values[0]);
+                                messageQueue.RemoveAt (0);
                                 return;
                             }
 
-                            writer.WriteLine (messageQueue.Values [messageQueue.Count - 1]);
-                            messageQueue.RemoveAt (messageQueue.Count - 1);
+
+                            writer.WriteLine (messageQueue.Values [0]);
+                            messageQueue.RemoveAt (0);
                             messageLimitPerCycle--;
                             messageCount++;
                         } else {
@@ -182,6 +187,7 @@ namespace TwitchIntegration
                     if (messageCount > messageLimit) {
                         long diff = 30 * 1000 - stopWatch.ElapsedMilliseconds;
                         if (diff > 0) {
+                            UnityEngine.Debug.Log("hit message limit sleeping for:" + diff);
                             Thread.Sleep ((int)diff);
                             //sleep until the limit is reached and then try to send
                         }
