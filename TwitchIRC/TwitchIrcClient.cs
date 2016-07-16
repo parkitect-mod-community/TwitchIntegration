@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Text;
+using UnityEngine;
 
 namespace TwitchIntegration
 {
@@ -16,16 +17,21 @@ namespace TwitchIntegration
 
         private const int TWITCH_SSL_PORT = 443;
         private const int TWITCH_PORT = 6667;
+        private const float TIME_LIMIT = 30f;
+
         private bool isMod = false;
 
 
         private Stopwatch stopWatch = new Stopwatch ();
         private Mutex commandQueueMutex = new Mutex ();
+        private Mutex MessageQueueMutex = new Mutex ();
         private EventWaitHandle sendingHandle = new AutoResetEvent (false);
         private int messageCount = 0;
 
         private bool stopThreads = false;
+
         private Queue<String> commandQueue = new Queue<string> ();
+        private SortedList<MessagePriority,string> messageQueue = new SortedList<MessagePriority, string> (100, new MessageSort ());
 
         private Thread SendingThread;
         private Thread ReceivingThread;
@@ -35,6 +41,14 @@ namespace TwitchIntegration
         private TcpClient tcp;
 
         public TwitchUser localUser{ get; private set; }
+
+        public int messageLimit {
+            get { 
+                if (isMod)
+                    return 100;
+                return 20;
+            }
+        }
 
        
         //public event EventHandler<OnDisconnect> Disconnected;
@@ -95,52 +109,87 @@ namespace TwitchIntegration
             ReceivingThread.Start ();
         }
 
-        
+
         private void SendingThreadProcess ()
         {
             stopWatch.Start ();
             //needs rate limiting
             while (!stopThreads) {
+                try {
+                    if ((stopWatch.ElapsedMilliseconds) / 1000.0f >= 30) {
+                        messageCount = 0;
+                        stopWatch.Reset ();
+                        stopWatch.Start ();
+                
 
-                if ((stopWatch.ElapsedMilliseconds) / 1000.0f > 30) {
-                    messageCount = 0;
-                    stopWatch.Reset ();
-                    stopWatch.Start ();
+                    }
 
-                }
+                    while (messageCount < messageLimit) {
+                  
+                        commandQueueMutex.WaitOne ();
+                        if (commandQueue.Count > 0) {
+                            writer.WriteLine (commandQueue.Peek ());
+                            commandQueue.Dequeue ();
+                        } else {
+                            commandQueueMutex.ReleaseMutex ();
+                            break;
+                        }
+                        commandQueueMutex.ReleaseMutex ();
+                        messageCount++;
+                    }
 
-                if (messageCount < 100 && isMod || messageCount < 20) {
-                    //wait a second to send the next message
+
+                    int messageLimitPerCycle = (int)Mathf.Floor (messageLimit / TIME_LIMIT);
+                    while (messageCount < messageLimit && messageLimitPerCycle > 0) {
+
+                        MessageQueueMutex.WaitOne ();
+                        if (messageQueue.Count > 0) {
+                        
+                            if (messageQueue.Keys [messageQueue.Count - 1].isTimeExausted ()) {
+                                messageQueue.RemoveAt (messageQueue.Count - 1);
+                                return;
+                            }
+
+                            writer.WriteLine (messageQueue.Values [messageQueue.Count - 1]);
+                            messageQueue.RemoveAt (messageQueue.Count - 1);
+                            messageLimitPerCycle--;
+                            messageCount++;
+                        } else {
+                            MessageQueueMutex.ReleaseMutex ();
+                            break;
+                        }
+                        MessageQueueMutex.ReleaseMutex ();
+
+
+                    }
+                    //sleep for a second and then proceede to the next sending cycle
                     Thread.Sleep (1000);
 
+                    writer.Flush ();
+                    MessageQueueMutex.WaitOne ();
+                    int messageQueueCount = messageQueue.Count;
+                    MessageQueueMutex.ReleaseMutex ();
+
                     commandQueueMutex.WaitOne ();
-                    if (commandQueue.Count > 0) {
-
-                        // UnityEngine.Debug.Log ("SENDING------" + commandQueue.Peek ());
-                        writer.WriteLine (commandQueue.Peek ());
-                        writer.Flush ();
-
-                        commandQueue.Dequeue ();
-                        commandQueueMutex.ReleaseMutex ();
-                    } else {
-                        commandQueueMutex.ReleaseMutex ();
-                        sendingHandle.WaitOne ();
-                    }
-
-                    messageCount++;
-
-                } else {
-                    long diff = 30 * 1000 - stopWatch.ElapsedMilliseconds;
-                    if (diff > 0) {
-                        Thread.Sleep ((int)diff);
-                        //sleep until the limit is reached and then try to send
-                    }
-                    //temporary solution is to empty the queue
-                    commandQueueMutex.WaitOne ();
-                    commandQueue.Clear ();
+                    int commandQueueCount = commandQueue.Count;
                     commandQueueMutex.ReleaseMutex ();
 
+                    if (commandQueueCount == 0 && messageQueueCount == 0)
+                        sendingHandle.WaitOne ();
+                
+
+                    //if count is exausted then go to sleep and wait for the next sending cycle
+                    if (messageCount > messageLimit) {
+                        long diff = 30 * 1000 - stopWatch.ElapsedMilliseconds;
+                        if (diff > 0) {
+                            Thread.Sleep ((int)diff);
+                            //sleep until the limit is reached and then try to send
+                        }
+                    }
+                } catch (Exception e) {
+                    UnityEngine.Debug.Log (e.Message);
                 }
+
             }
                
         }
@@ -233,7 +282,7 @@ namespace TwitchIntegration
                         break;
                     case "USERSTATE":
                     //TODO: add user state
-                      break;
+                        break;
                     case "USERNOTICE":
                         {
                             index++;
@@ -312,18 +361,22 @@ namespace TwitchIntegration
         }
 
 
-        public void SendMessage (IrcChannel channel, string message)
+        public void SendMessage (IrcChannel channel, float timeToLive, int priority, string message)
         {
+            MessageQueueMutex.WaitOne ();
             if (!TwitchIrcGlobal.blockMessages)
-                SendCommand ("PRIVMSG #" + channel.channel + " :" + message);
-            
+                messageQueue.Add (new MessagePriority (timeToLive, priority, Time.time), "PRIVMSG #" + channel.channel + " :" + message);
+            MessageQueueMutex.ReleaseMutex ();
+            sendingHandle.Set ();
         }
 
-        public void SendMessagePrivate (IrcChannel channel, TwitchUser user, string message)
+        public void SendMessagePrivate (IrcChannel channel, float timeToLive, int priority, TwitchUser user, string message)
         {
+            MessageQueueMutex.WaitOne ();
             if (!TwitchIrcGlobal.blockMessages)
-                SendCommand ("PRIVMSG #" + channel.channel + " :/w" + " " + user.name + " " + message);
-
+                messageQueue.Add (new MessagePriority (timeToLive, priority, Time.time), "PRIVMSG #" + channel.channel + " :/w" + " " + user.name + " " + message);
+            MessageQueueMutex.ReleaseMutex ();
+            sendingHandle.Set ();
         }
 
         /* public void SendPrivateMessage()

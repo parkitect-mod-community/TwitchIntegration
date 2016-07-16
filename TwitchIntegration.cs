@@ -102,7 +102,7 @@ namespace TwitchIntegration
             ircClient.EnableTags ();
             ircClient.EnableCommands ();
 
-            ircClient.SendMessage (channel, "Hi, I'm the Parkitect Twitch Integration!");
+            ircClient.SendMessage (channel,1000,-1, "Hi, I'm the Parkitect Twitch Integration!");
             UnityEngine.Debug.Log ("joined channel");
 
            
@@ -228,7 +228,7 @@ namespace TwitchIntegration
             if (ms.message.StartsWith ("!alert")) {
                 if (!isPermitted (ms.twitchUser, Main.configuration.settings.authPostAlerts)) {
                     if(Main.configuration.settings.authPostAlerts == Settings.AuthorizationLevel.SUBSCRIBERS)
-                        ircClient.SendMessagePrivate (channel, e.twitchUser, "You need to be subscribed to this channel to do this.");
+                        ircClient.SendMessagePrivate (channel,1f,1, e.twitchUser, "You need to be subscribed to this channel to do this.");
                     return;
                 }
                 syncHandle += (object sr, EventArgs ev) => {
@@ -242,7 +242,7 @@ namespace TwitchIntegration
                 if (guest == null)
                     return;
                 if (guest.thoughts.Count > 0) {
-                    ircClient.SendMessage (channel, "Thoughts of " + guest.getName () + ": " + guest.thoughts [guest.thoughts.Count - 1].text);
+                    ircClient.SendMessage (channel,5f,20, "Thoughts of " + guest.getName () + ": " + guest.thoughts [guest.thoughts.Count - 1].text);
                 }
             } else if (ms.message.StartsWith ("!actions")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
@@ -250,13 +250,13 @@ namespace TwitchIntegration
                     return;
                 List<Experience> experiences = guest.experienceLog.getExperiences ();
                 if (experiences.Count > 0) {
-                    ircClient.SendMessage (channel, "Actions of " + guest.getName () + ": " + experiences [experiences.Count - 1].getDescription ());
+                    ircClient.SendMessage (channel,5f,20, "Actions of " + guest.getName () + ": " + experiences [experiences.Count - 1].getDescription ());
                 } 
             } else if (ms.message.StartsWith ("!status")) {
                 Guest guest = collection.GetGuest (ms.twitchUser);
                 if (guest == null)
                     return;
-                ircClient.SendMessage (channel, "Status of " + guest.getName () + ": " + guest.currentBehaviour.getDescription () + ".");
+                ircClient.SendMessage (channel,5f,20, "Status of " + guest.getName () + ": " + guest.currentBehaviour.getDescription () + ".");
             } else if (ms.message.StartsWith ("!spawn")) {
                 onIrcJoined(sender,new UserChannelArgs(e.twitchUser,e.channel));
             }
@@ -268,7 +268,7 @@ namespace TwitchIntegration
                 foreach (Item item in guest.getFromInventory<Item>()) {
                     inventoryItems.Add (item.getDescription ());
                 }
-                ircClient.SendMessage (channel, "Inventory of " + guest.getName () + ": " + string.Join (", ", inventoryItems.ToArray ()));
+                ircClient.SendMessage (channel,5f,20, "Inventory of " + guest.getName () + ": " + string.Join (", ", inventoryItems.ToArray ()));
             } else {
 
                 if (!isPermitted (ms.twitchUser, Main.configuration.settings.authTwitchFeedGuestThoughts)) {
