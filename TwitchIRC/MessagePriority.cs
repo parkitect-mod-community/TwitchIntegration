@@ -22,7 +22,7 @@ namespace TwitchIntegration
             return GetTimeOfMessage() > messageLifeTime;
         }
 
-        public MessagePriority (float messageLifeTime, int priority,float time)
+        public MessagePriority (float messageLifeTime, int priority,float time) : this()
         {
             this.messageLifeTime = messageLifeTime;
             this.priority = priority;
