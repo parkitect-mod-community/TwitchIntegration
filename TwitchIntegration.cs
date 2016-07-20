@@ -211,10 +211,10 @@ namespace TwitchIntegration
         //addIrcLogEntry("Error: " + e.Error.ToString());
         //}
 
-        private void onIrcErrorMessageReceived (object sender, NoticeMessageArg e)
-        {
+        //private void onIrcErrorMessageReceived (object sender, NoticeMessageArg e)
+       // {
             //addIrcLogEntry("Error msg: " + e.Message);
-        }
+        //}
 
 
 

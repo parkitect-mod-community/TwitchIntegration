@@ -41,35 +41,18 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\..\Parkitect_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="build-160719205732854">
+      <HintPath>..\pollend%40UnityTwitchIRC\bin\pollend%40UnityTwitchIRC.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TwitchIRC\Args\OnConnectedArgs.cs" />
-    <Compile Include="TwitchIRC\Args\OnDisconnect.cs" />
-    <Compile Include="TwitchIRC\Args\OnErrorArgs.cs" />
-    <Compile Include="TwitchIRC\Args\OnRegistered.cs" />
-    <Compile Include="TwitchIRC\Args\OnUserLeftChannel.cs" />
-    <Compile Include="TwitchIRC\IrcChannel.cs" />
-    <Compile Include="TwitchIRC\TwitchCommand.cs" />
-    <Compile Include="TwitchIRC\TwitchCredentials.cs" />
-    <Compile Include="TwitchIRC\TwitchIrcClient.cs" />
-    <Compile Include="TwitchIRC\TwitchUser.cs" />
-    <Compile Include="TwitchIRC\Utility\ColorUtility.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Configruation.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="TwitchIntegration.cs" />
-    <Compile Include="TwitchIRC\Args\UserChannelArgs.cs" />
-    <Compile Include="TwitchIRC\Args\TwitchMessage.cs" />
-    <Compile Include="TwitchIRC\Args\NoticeMessageArg.cs" />
     <Compile Include="TwitchGuestAssocCollection.cs" />
-    <Compile Include="TwitchIRC\TwitchIrcGlobal.cs" />
     <Compile Include="GuestTwitchThough.cs" />
-    <Compile Include="TwitchIRC\Args\SubscribeArgs.cs" />
-    <Compile Include="TwitchIRC\MessagePriority.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="TwitchIRC\" />
-  </ItemGroup>
 </Project>

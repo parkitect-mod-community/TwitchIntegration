@@ -1,4 +1,5 @@
 {
+	"Dependencies":["pollend/UnityTwitchIRC"],
     "BaseDir": ".",
     "EntryPoint": "TwitchIntegration.Main",
     "IsDevelopment": true,
