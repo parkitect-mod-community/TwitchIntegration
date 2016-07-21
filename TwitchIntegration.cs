@@ -52,7 +52,7 @@ namespace TwitchIntegration
 
             ircClient = new TwitchIrcClient ();
 
-            ircClient.Connected += onIrcConnected;
+            ircClient.OnConnected += onIrcConnected;
             ircClient.OnJoinChannel += onIrcJoined;
             ircClient.OnLeaveChannel += OnLeavelRoom;
             ircClient.OnSubscribe += IrcClient_OnSubscribe;
