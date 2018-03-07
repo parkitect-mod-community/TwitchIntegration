@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -15,7 +15,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\pollend@TwitchIntegration\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -25,24 +25,46 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\pollend@TwitchIntegration\</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\Parkitect_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Parkitect, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>../../Parkitect_Data/Managed/Parkitect.dll</HintPath>
+      <Private>False</Private>
     </Reference>
+    <Reference Include="Parkitect, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\Parkitect_Data\Managed\Parkitect.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine">
-      <HintPath>..\..\Parkitect_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\..\Parkitect_Data\Managed\UnityEngine.UI.dll</HintPath>
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="build-160719205732854">
-      <HintPath>..\pollend%40UnityTwitchIRC\bin\pollend%40UnityTwitchIRC.dll</HintPath>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>../../Parkitect_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +75,36 @@
     <Compile Include="TwitchIntegration.cs" />
     <Compile Include="TwitchGuestAssocCollection.cs" />
     <Compile Include="GuestTwitchThough.cs" />
+    <Compile Include="UnityTwitchIRC\Args\AcknowledgmentArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\NoticeMessageArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\OperatorArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\RoomStateArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\SubscribeArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\TwitchMessage.cs" />
+    <Compile Include="UnityTwitchIRC\Args\UserChannelArgs.cs" />
+    <Compile Include="UnityTwitchIRC\Args\UserstateArgs.cs" />
+    <Compile Include="UnityTwitchIRC\IrcChannel.cs" />
+    <Compile Include="UnityTwitchIRC\MessagePriority.cs" />
+    <Compile Include="UnityTwitchIRC\TwitchCommand.cs" />
+    <Compile Include="UnityTwitchIRC\TwitchCredentials.cs" />
+    <Compile Include="UnityTwitchIRC\TwitchIrcClient.cs" />
+    <Compile Include="UnityTwitchIRC\TwitchIrcGlobal.cs" />
+    <Compile Include="UnityTwitchIRC\TwitchUser.cs" />
+    <Compile Include="UnityTwitchIRC\Utility\ColorUtility.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="preview.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="steam_workshop-id">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UnityTwitchIRC\.git" />
+    <Content Include="UnityTwitchIRC\.gitignore" />
+    <Content Include="UnityTwitchIRC\MiniTwitchIRC.csproj" />
+    <Content Include="UnityTwitchIRC\MiniTwitchIRC.sln" />
+    <Content Include="UnityTwitchIRC\mod.json" />
+    <Content Include="UnityTwitchIRC\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

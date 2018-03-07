@@ -22,9 +22,9 @@ namespace TwitchIntegration
         private Page page = Page.STATUS;
         private string path;
 
-        public Configruation(String path)
+        public Configruation()
         {
-            this.path = path + System.IO.Path.DirectorySeparatorChar + "Config.json"; 
+            path = FilePaths.getFolderPath("twitch_integration.config");; 
             settings = new Settings ();
             UnityEngine.Debug.Log(this.path);
         }

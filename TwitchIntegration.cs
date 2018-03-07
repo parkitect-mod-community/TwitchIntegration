@@ -5,11 +5,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Text;
 using Parkitect.UI;
-using System.IO;
-using MiniJSON;
 using System.Text.RegularExpressions;
-using TwitchIntegration;
-using System.Threading;
 
 namespace TwitchIntegration
 {
@@ -112,7 +108,8 @@ namespace TwitchIntegration
         {
             if (Main.configuration.settings.subscriptionNotification) {
                 syncHandle += (object sr, EventArgs ev) => {
-                    NotificationBar.Instance.addNotification (e.displayName + " has subbed for  " + e.numberOfMonths + " months in a row: " + e.message,default(Vector3),null);
+                    
+                    NotificationBar.Instance.addNotification (new Notification("Twitch",e.displayName + " has subbed for  " + e.numberOfMonths + " months in a row: " + e.message));
                 
                 };
             }
@@ -171,7 +168,7 @@ namespace TwitchIntegration
                     userGuest.Initialize ();
 
                     if (Main.configuration.settings.twitchSpawnGuestNotification) {
-                        NotificationBar.Instance.addNotification (e.user.name + " has spawned in as a guest",userGuest.transform.position,null);
+                        NotificationBar.Instance.addNotification (new Notification("Twitch",e.user.name + " has spawned in as a guest",Notification.Type.DEFAULT,userGuest.transform.position));
                     }
 
 
@@ -232,7 +229,8 @@ namespace TwitchIntegration
                     return;
                 }
                 syncHandle += (object sr, EventArgs ev) => {
-                    NotificationBar.Instance.addNotification (ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1),default(Vector3),null);
+                        
+                    NotificationBar.Instance.addNotification (new Notification("Twitch",ms.displayName + ": " + ms.message.Remove (0, "!alert".Length + 1)));
                 };
 
             } 

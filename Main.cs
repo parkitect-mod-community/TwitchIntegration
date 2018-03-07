@@ -1,6 +1,5 @@
-using System;
+using System.Linq;
 using UnityEngine;
-
 
 namespace TwitchIntegration {
 	public class Main : IMod, IModSettings {
@@ -8,9 +7,9 @@ namespace TwitchIntegration {
         public static Configruation configuration;
 
 		public void onEnabled() {
-            if (Main.configuration == null) {
-                Main.configuration = new Configruation (this.Path);
-                Main.configuration.Load ();
+            if (configuration == null) {
+                configuration = new Configruation ();
+                configuration.Load ();
             }
 			
             GameObject go = new GameObject(Name);
@@ -19,37 +18,36 @@ namespace TwitchIntegration {
 		
 		public void onDisabled() {
 			if (instance != null) {
-				UnityEngine.Object.Destroy(instance.gameObject);
+				Object.Destroy(instance.gameObject);
 				instance = null;
 			}
 		}
 
 		public void onDrawSettingsUI() {
-            Main.configuration.DrawGUI ();
+            configuration.DrawGUI ();
 		}
 
 		public void onSettingsOpened() {
-            if (Main.configuration == null)
-                Main.configuration = new Configruation (this.Path);
-            Main.configuration.Load ();
+            if (configuration == null)
+                configuration = new Configruation ();
+            configuration.Load ();
             
         }
 		public void onSettingsClosed() {
-            Main.configuration.Save ();
+            configuration.Save ();
         }
 		
-		public string Name {
-			get { return "Twitch Integration"; }
-		}
+		public string Name => "Twitch Integration";
 
-		public string Identifier {
-            get; set;
-		}
+		public string Identifier => "TwitchIntegration";
 
-		public string Description {
-			get { return "Allows viewers of your Twitch livestream to interact with the game."; }
+		public string Description => "Allows viewers of your Twitch livestream to interact with the game.";
+		public string Path
+		{
+			get
+			{
+				return ModManager.Instance.getModEntries().First(x => x.mod == this).path;
+			}
 		}
-
-        public string Path{get;set;}
 	}
 }

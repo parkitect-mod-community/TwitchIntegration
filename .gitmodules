@@ -1,0 +1,3 @@
+[submodule "UnityTwitchIRC"]
+	path = UnityTwitchIRC
+	url = git@github.com:pollend/UnityTwitchIRC.git
