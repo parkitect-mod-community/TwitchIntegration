@@ -142,7 +142,7 @@ namespace TwitchIntegration
                     userGuest = GameController.Instance.park.spawnUnInitializedPerson (Prefabs.Guest) as Guest;
                     userGuest.nickname = e.user.name;
 
-                    Match match = Regex.Match (e.user.name, @"(\w+)(?:\s+|\_+)(\w+)", RegexOptions.IgnoreCase);
+                    Match match = Regex.Match (e.user.name, @"(\w+)(?:\s+|_+)(\w+)", RegexOptions.IgnoreCase);
                     if (match.Success) {
                         userGuest.forename = match.Groups [1].Value;
                         if (match.Groups [2].Success) {
@@ -194,7 +194,7 @@ namespace TwitchIntegration
                 Guest g =  collection.GetGuest(e.user);
                 if(g != null)
                 {
-                    g.startLongTermPlan(new LeaveParkPlan(g, GameController.Instance.park.spawns[0].centerPosition));
+                    g.startLongTermPlan(new LeaveParkPlan(g, GameController.Instance.park.getSpawns()[0].centerPosition));
                 }
             };
         }
