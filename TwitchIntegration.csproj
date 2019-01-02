@@ -35,9 +35,6 @@
       <HintPath>../../Parkitect_Data/Managed/Parkitect.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Parkitect, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\Parkitect_Data\Managed\Parkitect.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -68,7 +65,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Configruation.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Settings.cs" />
@@ -93,6 +89,7 @@
     <Compile Include="UnityTwitchIRC\Utility\ColorUtility.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="LICENSE" />
     <Content Include="preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -103,7 +100,6 @@
     <Content Include="UnityTwitchIRC\.gitignore" />
     <Content Include="UnityTwitchIRC\MiniTwitchIRC.csproj" />
     <Content Include="UnityTwitchIRC\MiniTwitchIRC.sln" />
-    <Content Include="UnityTwitchIRC\mod.json" />
     <Content Include="UnityTwitchIRC\README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
