@@ -3,7 +3,7 @@
 ## Introduction
 
 ![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)
-[![steam](https://img.shields.io/steam/downloads/1322956620.svg)](https://steamcommunity.com/sharedfiles/filedetails/?id=1322956620)
+[![](https://img.shields.io/steam/subscriptions/1322956620.svg)](https://steamcommunity.com/sharedfiles/filedetails/?id=1322956620)
 
 Allows your Twitch viewers to spawn a guest in the game and follow their actions, and post notifications.
 
