@@ -179,12 +179,13 @@ namespace TwitchIntegration
                 {
                     userGuest = GameController.Instance.park.spawnUnInitializedPerson(Prefabs.Guest) as Guest;
                     userGuest.nickname = e.user.name;
-
-                    var match = Regex.Match(e.user.name, @"(\w+)(?:\s+|_+)(\w+)", RegexOptions.IgnoreCase);
-                    if (match.Success)
-                    {
-                        userGuest.forename = match.Groups[1].Value;
-                        if (match.Groups[2].Success) userGuest.surname = match.Groups[2].Value;
+                    
+                    Match match = Regex.Match (e.user.name, @"(\w+)(?:\s+|_+)(\w+)", RegexOptions.IgnoreCase);
+                    if (match.Success) {
+                        userGuest.forename = match.Groups [1].Value;
+                        if (match.Groups [2].Success) {
+                            userGuest.surname = match.Groups [2].Value;
+                        }
                     }
                     else
                     {
